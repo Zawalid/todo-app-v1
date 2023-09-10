@@ -1,0 +1,10 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
+#root {
+  @apply flex h-screen place-content-center items-center;
+}
+.tab {
+  @apply relative text-lg font-semibold text-text before:absolute before:-bottom-[13px] before:h-[1px] before:w-full before:transition-colors before:duration-300 hover:before:bg-text-2;
+}
+.tab.active {
+  @apply before:bg-text-2;
+}

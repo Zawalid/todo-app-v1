@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  @apply bg-background text-text;
+}
+
+body {
+  @apply min-h-screen;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-text-2
+}
+::-webkit-scrollbar-track {
+@apply bg-secondary
+}
