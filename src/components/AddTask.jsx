@@ -1,7 +1,21 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function AddTask({ onAdd }) {
   const [value, setValue] = useState("");
+  const inputEl = useRef(null);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.code === "Space") {
+        inputEl.current.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!value) return;
@@ -17,7 +31,9 @@ export function AddTask({ onAdd }) {
           className="w-full rounded-lg bg-secondary py-3 pl-10  text-text placeholder:font-semibold  focus:outline-none "
           placeholder="Add a task..."
           value={value}
-          onChange={(e) => setValue(e.target.value)} />
+          onChange={(e) => setValue(e.target.value)}
+          ref={inputEl}
+        />
       </div>
     </form>
   );

@@ -49,7 +49,7 @@ export function Task({
               "break-all text-text text-lg font-bold" + (checked ? " line-through" : "")
             }
           >
-            {task.task}
+            {task.title}
           </p>
         </div>
         {task.memo && <p className="mt-2 ml-8 font-semibold text-text-2">{task.memo}</p>}

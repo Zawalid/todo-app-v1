@@ -1,30 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export function TasksPeriod({ period }) {
+export function TasksPeriod({ period, setTasksDate }) {
   const [count, setCount] = useState(0);
-  const currentDate = new Date();
-  period === "days" && currentDate.setDate(currentDate.getDate() + count);
-  period === "weeks" && currentDate.setDate(currentDate.getDate() + count * 7);
-  period === "months" && currentDate.setMonth(currentDate.getMonth() + count);
-  period === "years" &&
-    currentDate.setFullYear(currentDate.getFullYear() + count);
+
+  const currentDate = useMemo(() => {
+    const newDate = new Date();
+    if (period === "days") {
+      newDate.setDate(newDate.getDate() + count);
+    } else if (period === "weeks") {
+      newDate.setDate(newDate.getDate() + count * 7);
+    } else if (period === "months") {
+      newDate.setMonth(newDate.getMonth() + count);
+    } else if (period === "years") {
+      newDate.setFullYear(newDate.getFullYear() + count);
+    }
+    return newDate;
+  }, [period, count]);
+
+  useEffect(() => {
+    setTasksDate(currentDate);
+  }, [period, count, setTasksDate, currentDate]);
 
   useEffect(() => {
     setCount(0);
   }, [period]);
 
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "ArrowLeft") {
+        setCount((prev) => prev - 1);
+      } else if (e.key === "ArrowRight") {
+        setCount((prev) => prev + 1);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+    // eslint-disable-next-line
+  }, [count]);
+
   return (
-    <div className="my-16 grid grid-cols-[20px_260px_20px] items-center justify-center gap-10 text-center">
+    <div className="my-16 h-20 grid grid-cols-[20px_260px_20px] items-center justify-center gap-10 text-center">
       <i
         className="fa-solid fa-chevron-left cursor-pointer text-2xl text-text-2"
         onClick={() => setCount((prev) => prev - 1)}
       ></i>
-      {{
-        days: <TasksByDays currentDate={currentDate} />,
-        weeks: <TasksByWeeks currentDate={currentDate} />,
-        months: <TasksByMonths currentDate={currentDate} />,
-        years: <TasksByYears currentDate={currentDate} />,
-      }[period]}
+      {
+        {
+          days: <TasksByDays currentDate={currentDate} />,
+          weeks: <TasksByWeeks currentDate={currentDate} />,
+          months: <TasksByMonths currentDate={currentDate} />,
+          years: <TasksByYears currentDate={currentDate} />,
+        }[period]
+      }
       <i
         className="fa-solid fa-chevron-right cursor-pointer text-2xl text-text-2"
         onClick={() => setCount((prev) => prev + 1)}
@@ -39,12 +68,12 @@ function TasksByDays({ currentDate }) {
         {currentDate.getDate() === new Date().getDate()
           ? "Today"
           : currentDate.getDate() === new Date().getDate() + 1
-            ? "Tomorrow"
-            : currentDate.getDate() === new Date().getDate() - 1
-              ? "Yesterday"
-              : currentDate.toLocaleDateString("en-US", {
-                weekday: "long",
-              })}
+          ? "Tomorrow"
+          : currentDate.getDate() === new Date().getDate() - 1
+          ? "Yesterday"
+          : currentDate.toLocaleDateString("en-US", {
+              weekday: "long",
+            })}
       </h1>
       <p className="text-xl font-semibold text-text-2">
         {currentDate.toLocaleDateString("en-US", {
@@ -57,6 +86,12 @@ function TasksByDays({ currentDate }) {
   );
 }
 function TasksByWeeks({ currentDate }) {
+  const weekLastDay = useMemo(() => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + 6);
+    return newDate;
+  }, [currentDate]);
+
   return (
     <div>
       <h1 className="mb-3 text-3xl font-bold text-text">
@@ -65,9 +100,7 @@ function TasksByWeeks({ currentDate }) {
           day: "numeric",
         })}{" "}
         -{" "}
-        {new Date(
-          currentDate.setDate(currentDate.getDate() + 6)
-        ).toLocaleDateString("en-US", {
+        {weekLastDay.toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         })}
