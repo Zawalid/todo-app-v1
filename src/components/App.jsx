@@ -170,7 +170,7 @@ export default function App() {
           onSelect={(e) => setSelectedOption(e.target.value)}
         />
         <button
-          className=" m-auto mt-3 block cursor-pointer rounded-lg bg-secondary px-4  py-1 text-text"
+          className=" m-auto xs:mt-3 block cursor-pointer rounded-lg bg-secondary px-4  py-1 text-text"
           onClick={() => setIsActionsOpen((io) => !io)}
         >
           <i
