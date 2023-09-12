@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-
 export function TasksPeriod({ period, setTasksDate }) {
   const [count, setCount] = useState(0);
-
+  
   const currentDate = useMemo(() => {
     const newDate = new Date();
     if (period === "days") {
@@ -16,6 +15,7 @@ export function TasksPeriod({ period, setTasksDate }) {
     }
     return newDate;
   }, [period, count]);
+
 
   useEffect(() => {
     setTasksDate(currentDate);
@@ -41,7 +41,7 @@ export function TasksPeriod({ period, setTasksDate }) {
   }, [count]);
 
   return (
-    <div className="my-16 h-20 grid grid-cols-[20px_260px_20px] items-center justify-center gap-10 text-center">
+    <div className="my-16 grid h-20 grid-cols-[20px_200px_20px] items-center justify-center gap-10 text-center xs:grid-cols-[20px_260px_20px]">
       <i
         className="fa-solid fa-chevron-left cursor-pointer text-2xl text-text-2"
         onClick={() => setCount((prev) => prev - 1)}
@@ -64,12 +64,18 @@ export function TasksPeriod({ period, setTasksDate }) {
 function TasksByDays({ currentDate }) {
   return (
     <div>
-      <h1 className="mb-3 text-5xl font-bold text-text">
-        {currentDate.getDate() === new Date().getDate()
+      <h1 className="mb-3 text-4xl font-bold  text-text xs:text-5xl">
+        {currentDate.getDate() === new Date().getDate() &&
+        currentDate.getMonth() === new Date().getMonth() &&
+        currentDate.getYear() === new Date().getYear()
           ? "Today"
-          : currentDate.getDate() === new Date().getDate() + 1
+          : currentDate.getDate() === new Date().getDate() + 1 &&
+            currentDate.getMonth() === new Date().getMonth() &&
+            currentDate.getYear() === new Date().getYear()
           ? "Tomorrow"
-          : currentDate.getDate() === new Date().getDate() - 1
+          : currentDate.getDate() === new Date().getDate() - 1 &&
+            currentDate.getMonth() === new Date().getMonth() &&
+            currentDate.getYear() === new Date().getYear()
           ? "Yesterday"
           : currentDate.toLocaleDateString("en-US", {
               weekday: "long",
@@ -116,7 +122,7 @@ function TasksByWeeks({ currentDate }) {
 function TasksByMonths({ currentDate }) {
   return (
     <div>
-      <h1 className="mb-3 text-5xl font-bold text-text">
+      <h1 className="mb-3 text-4xl font-bold  text-text xs:text-5xl">
         {currentDate.toLocaleDateString("en-US", {
           month: "long",
         })}
@@ -132,7 +138,7 @@ function TasksByMonths({ currentDate }) {
 function TasksByYears({ currentDate }) {
   return (
     <div>
-      <h1 className="mb-3 text-5xl font-bold text-text">
+      <h1 className="mb-3 text-4xl font-bold  text-text xs:text-5xl">
         {currentDate.getFullYear()}
       </h1>
     </div>

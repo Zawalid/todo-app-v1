@@ -9,10 +9,12 @@ export function Task({
   onPin,
   onUnpin,
   onAddMemo,
+  onEditTask,
 }) {
   const [checked, setChecked] = useState(task.isCompleted);
   const [isTaskActionsOpen, setIsTaskActionsOpen] = useState(false);
   const taskActions = useRef(null);
+  const taskTitle = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -46,13 +48,17 @@ export function Task({
           />
           <p
             className={
-              "break-all text-text text-lg font-bold" + (checked ? " line-through" : "")
+              "break-all text-lg font-bold text-text" +
+              (checked ? " line-through" : "")
             }
+            ref={taskTitle}
           >
             {task.title}
           </p>
         </div>
-        {task.memo && <p className="mt-2 ml-8 font-semibold text-text-2">{task.memo}</p>}
+        {task.memo && (
+          <p className="ml-8 mt-2 font-semibold text-text-2">{task.memo}</p>
+        )}
       </div>
       <div className="relative">
         <i
@@ -68,6 +74,8 @@ export function Task({
           onUnpin={() => onUnpin(task.id)}
           onAddMemo={(memo) => onAddMemo(task.id, memo, isPinned)}
           taskMemo={task.memo}
+          onEditTask={(title) => onEditTask(task.id, title, isPinned)}
+          taskTitleEl={taskTitle.current}
         />
       </div>
     </div>

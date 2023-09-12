@@ -25,14 +25,12 @@ export default function App() {
     const periods = ["days", "weeks", "months", "years"];
     let index = 0;
     function handleKeyDown(e) {
-      if (e.key === "ArrowDown") {
-        index--;
-        if (index < 0) index = periods.length - 1;
-      } else if (e.key === "ArrowUp") {
-        index++;
-        if (index >= periods.length) index = 0;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.key === "ArrowDown"
+          ? (index--, index < 0 && (index = periods.length - 1))
+          : (index++, index >= periods.length && (index = 0));
+        setPeriod(periods[index]);
       }
-      setPeriod(periods[index]);
     }
 
     document.addEventListener("keydown", handleKeyDown);
@@ -40,6 +38,18 @@ export default function App() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+  useEffect(() => {
+    setFilteredTasks([...pinnedTasks, ...tasks]);
+    filterTasks();
+    // eslint-disable-next-line
+  }, [pinnedTasks, tasks]);
+  useEffect(() => {
+    setSelectedOption("all");
+  }, [period, tasksDate]);
+  useEffect(() => {
+    filterTasks();
+    // eslint-disable-next-line
+  }, [selectedOption]);
 
   function changePeriod(period) {
     setPeriod(period);
@@ -59,7 +69,7 @@ export default function App() {
         title,
         isCompleted: false,
         memo: "",
-        date: new Date(),
+        date: tasksDate,
       },
     ]);
   }
@@ -94,9 +104,26 @@ export default function App() {
   function addMemo(id, memo, isPinned) {
     modifyTask(id, isPinned, "memo", memo);
   }
+  function editTask(id, title, isPinned) {
+    modifyTask(id, isPinned, "title", title);
+  }
   function clearAllTasks() {
-    setTasks([]);
-    setPinnedTasks([]);
+    setTasks(
+      tasks.filter(
+        (task) =>
+          new Date(task.date).getDate() !== tasksDate.getDate() ||
+          new Date(task.date).getMonth() !== tasksDate.getMonth() ||
+          new Date(task.date).getFullYear() !== tasksDate.getFullYear(),
+      ),
+    );
+    setPinnedTasks(
+      pinnedTasks.filter(
+        (task) =>
+          new Date(task.date).getDate() !== tasksDate.getDate() ||
+          new Date(task.date).getMonth() !== tasksDate.getMonth() ||
+          new Date(task.date).getFullYear() !== tasksDate.getFullYear(),
+      ),
+    );
   }
   function filterTasks() {
     switch (selectedOption) {
@@ -122,9 +149,9 @@ export default function App() {
   }
 
   return (
-    <div className=" h-full w-full overflow-auto rounded-lg  bg-[#0c1f1f] px-3 py-3 shadow-md md:h-auto md:w-1/2">
+    <div className=" flex h-full w-full flex-col rounded-lg bg-[#0c1f1f]  px-3 py-3 shadow-md md:h-[90%]  md:w-1/2">
       <TasksPeriodTabs period={period} onChangePeriod={changePeriod} />
-      <div className="px-8 lg:px-16">
+      <div className="px-8 lg:px-16 ">
         <TasksPeriod period={period} setTasksDate={setTasksDate} />
         <AddTask onAdd={addTask} />
         <Actions
@@ -135,7 +162,6 @@ export default function App() {
           setSortKey={setSortKey}
           selectedOption={selectedOption}
           onSelect={(e) => setSelectedOption(e.target.value)}
-          onFilter={filterTasks}
         />
         <button
           className=" m-auto mt-3 block cursor-pointer rounded-lg bg-secondary px-4  py-1 text-text"
@@ -147,75 +173,112 @@ export default function App() {
             }`}
           ></i>
         </button>
-        <div
-          className={
-            "mt-5 h-80 border-t border-secondary pr-3 pt-5 " +
-            (filteredTasks.length === 0 ? "grid place-content-center" : "")
-          }
-        >
-          {filteredTasks.length === 0 && (
+      </div>
+
+      <div className="mt-5 flex-1 overflow-auto border-t  border-secondary px-8 pr-3 pt-5 lg:px-16 ">
+        {[
+          ...filteredTasks.filter((task) => {
+            if (period === "days" || period === "weeks")
+              return (
+                new Date(task.date).getDate() === tasksDate.getDate() &&
+                new Date(task.date).getMonth() === tasksDate.getMonth() &&
+                new Date(task.date).getFullYear() === tasksDate.getFullYear()
+              );
+            else if (period === "months")
+              return (
+                new Date(task.date).getMonth() === tasksDate.getMonth() &&
+                new Date(task.date).getFullYear() === tasksDate.getFullYear()
+              );
+            else if (period === "years")
+              return (
+                new Date(task.date).getFullYear() === tasksDate.getFullYear()
+              );
+            else return true;
+          }),
+        ].length === 0 && (
+          <div className="grid h-full place-content-center">
             <p className="text-center  text-lg font-bold text-text-2">
               No tasks yet
             </p>
-          )}
-          {[...filteredTasks]
-            .sort((a, b) => {
-              if (sortDirection === "asc") {
-                return sortKey === "title"
-                  ? a.title.localeCompare(b.title)
-                  : new Date(a.date) - new Date(b.date);
-              } else {
-                return sortKey === "title"
-                  ? b.title.localeCompare(a.title)
-                  : new Date(b.date) - new Date(a.date);
-              }
-            })
-            .map((task) => {
-              const taskComponent = (
-                <Task
-                  key={task.id}
-                  task={task}
-                  onDelete={deleteTask}
-                  onCheck={checkTask}
-                  isPinned={pinnedTasks.includes(task)}
-                  onPin={pinTask}
-                  onUnpin={unpinTask}
-                  onAddMemo={addMemo}
-                />
-              );
+          </div>
+        )}
+        {pinnedTasks.map((task) => (
+          <Task
+            key={task.id}
+            task={task}
+            onDelete={deleteTask}
+            onCheck={checkTask}
+            isPinned={pinnedTasks.includes(task)}
+            onPin={pinTask}
+            onUnpin={unpinTask}
+            onAddMemo={addMemo}
+            onEditTask={editTask}
+          />
+        ))}
+        {[...filteredTasks]
+          .filter((task) => !pinnedTasks.includes(task))
+          .sort((a, b) => {
+            if (sortDirection === "asc") {
+              return sortKey === "title"
+                ? a.title.localeCompare(b.title)
+                : new Date(a.date) - new Date(b.date);
+            } else {
+              return sortKey === "title"
+                ? b.title.localeCompare(a.title)
+                : new Date(b.date) - new Date(a.date);
+            }
+          })
+          .map((task) => {
+            const taskComponent = (
+              <Task
+                key={task.id}
+                task={task}
+                onDelete={deleteTask}
+                onCheck={checkTask}
+                isPinned={pinnedTasks.includes(task)}
+                onPin={pinTask}
+                onUnpin={unpinTask}
+                onAddMemo={addMemo}
+                onEditTask={editTask}
+              />
+            );
 
-              const startOfWeek = new Date(tasksDate);
-              startOfWeek.setHours(0, 0, 0, 0);
-              const endOfWeek = new Date(startOfWeek);
-              endOfWeek.setDate(endOfWeek.getDate() + 6);
+            const startOfWeek = new Date(tasksDate);
+            startOfWeek.setHours(0, 0, 0, 0);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(endOfWeek.getDate() + 6);
 
-              switch (period) {
-                case "days":
-                  return (
-                    new Date(task.date).getDate() === tasksDate.getDate() &&
-                    taskComponent
-                  );
-                case "weeks":
-                  return (
-                    new Date(task.date) >= startOfWeek &&
-                    new Date(task.date) <= endOfWeek &&
-                    taskComponent
-                  );
-                case "months":
-                  return (
-                    new Date(task.date).getMonth() === tasksDate.getMonth() &&
-                    taskComponent
-                  );
-                case "years":
-                  return (
-                    new Date(task.date).getFullYear() ===
-                      tasksDate.getFullYear() && taskComponent
-                  );
-                default:
-                  return taskComponent;
-              }
-            })}
-        </div>
+            switch (period) {
+              case "days":
+                return (
+                  new Date(task.date).getDate() === tasksDate.getDate() &&
+                  new Date(task.date).getMonth() === tasksDate.getMonth() &&
+                  new Date(task.date).getFullYear() ===
+                    tasksDate.getFullYear() &&
+                  taskComponent
+                );
+              case "weeks":
+                return (
+                  new Date(task.date) >= startOfWeek &&
+                  new Date(task.date) <= endOfWeek &&
+                  taskComponent
+                );
+              case "months":
+                return (
+                  new Date(task.date).getMonth() === tasksDate.getMonth() &&
+                  new Date(task.date).getFullYear() ===
+                    tasksDate.getFullYear() &&
+                  taskComponent
+                );
+              case "years":
+                return (
+                  new Date(task.date).getFullYear() ===
+                    tasksDate.getFullYear() && taskComponent
+                );
+              default:
+                return taskComponent;
+            }
+          })}
       </div>
     </div>
   );

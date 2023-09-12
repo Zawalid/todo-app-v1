@@ -10,7 +10,6 @@ export function Actions({
   setSortKey,
   selectedOption,
   onSelect,
-  onFilter,
 }) {
   const sortButtons = useRef(null);
 
@@ -42,17 +41,16 @@ export function Actions({
     <div
       className={
         "mt-3 overflow-hidden transition-[height] duration-300 " +
-        (isOpen ? "h-20" : "h-0 ")
+        (isOpen ? "h-44 xs:h-20" : "h-0 ")
       }
     >
-      <div className="mb-3 flex items-center gap-3">
+      <div className="mb-3 flex flex-col xs:flex-row xs:items-center gap-3">
         <FilterTasks
           selectedOption={selectedOption}
           onSelect={onSelect}
-          onFilter={onFilter}
         />
         <button
-          className="b rounded-lg bg-red-700 px-5 py-1 font-bold text-text"
+          className="b rounded-lg bg-red-700 px-5 py-1 font-bold text-text flex-[.5]"
           onClick={onClearAll}
         >
           Clear All

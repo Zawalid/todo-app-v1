@@ -6,14 +6,20 @@ export function AddTask({ onAdd }) {
 
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.code === "Space") {
+      if (
+        e.target.tagName !== "TEXTAREA" &&
+        e.target.tagName !== "INPUT" &&
+        e.target.tagName !== "P" &&
+        e.key === "Enter"
+      ) {
+        e.preventDefault();
         inputEl.current.focus();
       }
     }
 
-    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
   const handleSubmit = (e) => {
