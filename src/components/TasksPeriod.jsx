@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-export function TasksPeriod({ period, setTasksDate }) {
-  const [count, setCount] = useState(0);
+export function TasksPeriod({count,setCount, period, setTasksDate }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const dateNow = useMemo(() => new Date(), []);
@@ -38,7 +37,7 @@ export function TasksPeriod({ period, setTasksDate }) {
 
   useEffect(() => {
     setCount(0);
-  }, [period]);
+  }, [period,setCount]);
 
   useEffect(() => {
     function handleKeyDown(e) {

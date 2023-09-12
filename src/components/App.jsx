@@ -10,6 +10,7 @@ import { Actions } from "./Actions";
 export default function App() {
   const [tasks, setTasks] = useLocalStorageState("tasks", []);
   const [pinnedTasks, setPinnedTasks] = useLocalStorageState("pined", []);
+  const [count, setCount] = useState(0);
   const [period, setPeriod] = useState("days");
   const [tasksDate, setTasksDate] = useState(new Date());
   const [isActionsOpen, setIsActionsOpen] = useState(true);
@@ -45,7 +46,7 @@ export default function App() {
   }, [pinnedTasks, tasks]);
   useEffect(() => {
     setSelectedOption("all");
-  }, [period, tasksDate]);
+  }, [period, count]);
   useEffect(() => {
     filterTasks();
     // eslint-disable-next-line
@@ -152,7 +153,12 @@ export default function App() {
     <div className=" flex h-full w-full flex-col rounded-lg bg-[#0c1f1f]  px-3 py-3 shadow-md md:h-[90%]  md:w-1/2">
       <TasksPeriodTabs period={period} onChangePeriod={changePeriod} />
       <div className="px-8 lg:px-16 ">
-        <TasksPeriod period={period} setTasksDate={setTasksDate} />
+        <TasksPeriod
+          count={count}
+          setCount={setCount}
+          period={period}
+          setTasksDate={setTasksDate}
+        />
         <AddTask onAdd={addTask} />
         <Actions
           isOpen={isActionsOpen}
