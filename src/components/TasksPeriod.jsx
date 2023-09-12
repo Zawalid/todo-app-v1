@@ -1,8 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 export function TasksPeriod({ period, setTasksDate }) {
   const [count, setCount] = useState(0);
-  
-  const currentDate = useMemo(() => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const dateNow = useMemo(() => new Date(), []);
+
+  useEffect(() => {
+    updateCurrentDate(period, count);
+  }, [period, count]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateCurrentDate(period, count);
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [dateNow, period, count]);
+
+  const updateCurrentDate = (period, count) => {
     const newDate = new Date();
     if (period === "days") {
       newDate.setDate(newDate.getDate() + count);
@@ -13,9 +29,8 @@ export function TasksPeriod({ period, setTasksDate }) {
     } else if (period === "years") {
       newDate.setFullYear(newDate.getFullYear() + count);
     }
-    return newDate;
-  }, [period, count]);
-
+    setCurrentDate(newDate);
+  };
 
   useEffect(() => {
     setTasksDate(currentDate);
